@@ -1,4 +1,4 @@
-# Plataforma de Simulação de Phishing — Conscientização (Grupo BP)
+# Plataforma de Simulação de Phishing — Conscientização (4p Capital )
 
 Ferramenta interna de TI para rodar campanhas de **simulação de phishing**
 (conscientização), autorizada pela diretoria. Objetivo: medir quantas pessoas
