@@ -87,12 +87,45 @@ Ver [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql).
 - Papel `anon`: **sem policy alguma** — não escreve nem lê direto.
 - Escrita de tracking: exclusiva da **service role**, nos route handlers do servidor.
 
+## Fase 1 — Painel de campanhas
+
+O painel interno vive em `/painel` e exige login (Supabase Auth). Não há
+auto-cadastro: os usuários da equipe de TI são provisionados manualmente.
+
+### 1. Criar o usuário de TI no Supabase
+
+No painel do Supabase: **Authentication > Users > Add user** → informe e-mail e
+senha (marque "Auto Confirm User"). Repita para cada pessoa do time. Opcional:
+em **Authentication > Providers > Email**, desligue "Enable sign-ups" para
+impedir cadastros externos.
+
+### 2. Entrar
+
+Rode `npm run dev`, acesse `http://localhost:3000/painel` e faça login. O
+middleware (`src/proxy.ts`) protege tudo sob `/painel`; as rotas públicas de
+tracking (pixel/clique/submit/landing/treinamento) ficam fora do gate.
+
+### 3. Criar campanha e importar destinatários
+
+- **Nova campanha**: nome, setor-alvo, landing, remetente e assunto.
+- **Importar CSV** (na tela da campanha): colunas `nome, email, setor` — vírgula
+  ou ponto-e-vírgula, com ou sem cabeçalho. Só o e-mail é obrigatório; e-mails
+  repetidos na mesma campanha são ignorados. O `token` de cada destinatário é
+  gerado pelo **DEFAULT do banco**, nunca no código.
+- Cada destinatário exibe seu **link de clique** (`/c/<token>`) pronto para o
+  disparo da Fase 4, e as etapas atingidas (abriu/clicou/submeteu/treinou).
+
+> As escritas do painel passam pela **service role** em Server Actions, sempre
+> atrás de `exigirUsuario()` — a service role ignora o RLS, então a checagem de
+> sessão no servidor é o que impede escrita anônima. Nenhuma dessas operações
+> toca senha ou credencial.
+
 ## Roadmap
 
 - [x] **Fase 0 — Fundação**: repo, migração, variáveis de ambiente, clients Supabase.
-- [ ] **Fase 1 — Campanha**: CRUD de campanha, importar destinatários (CSV), gerar tokens.
+- [x] **Fase 1 — Campanha**: login do painel, CRUD de campanha, importar destinatários (CSV), gerar tokens.
 - [x] **Fase 2 — Tracking**: rotas de pixel, clique e submissão + a landing.
-- [ ] **Fase 3 — Treinamento**: página de conscientização pós-clique.
+- [x] **Fase 3 — Treinamento**: página de conscientização pós-clique.
 - [ ] **Fase 4 — Envio**: disparo com token por destinatário (SMTP/n8n).
 - [ ] **Fase 5 — Dashboard**: taxas por setor e por pessoa.
 - [ ] **Fase 6 — Piloto**: rodar num setor, medir, ajustar, treinar.

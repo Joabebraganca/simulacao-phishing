@@ -1,17 +1,21 @@
-// Pagina inicial. No piloto, redireciona para o painel (Fase 5).
-// Por enquanto, um marcador simples de que a Fundacao (Fase 0) esta de pe.
+import Link from "next/link";
+import { cores, botao } from "@/lib/ui";
 
+// Pagina inicial publica. Aponta a equipe de TI para o painel (que exige login).
 export default function Home() {
   return (
     <main style={{ maxWidth: 640, margin: "80px auto", padding: "0 24px" }}>
-      <h1>Plataforma de Conscientização</h1>
-      <p>
+      <h1 style={{ color: cores.texto }}>Plataforma de Conscientização</h1>
+      <p style={{ color: cores.texto, lineHeight: 1.6 }}>
         Ferramenta interna de simulação de phishing (conscientização). Este
         sistema mede <strong>comportamento, não credenciais</strong>.
       </p>
-      <p style={{ color: "#666" }}>
-        Fase 0 (Fundação) concluída. Painel e campanhas nas próximas fases.
+      <p style={{ color: cores.suave }}>
+        Acesso restrito à equipe de TI.
       </p>
+      <Link href="/painel" style={{ ...botao, marginTop: 8 }}>
+        Entrar no painel
+      </Link>
     </main>
   );
 }

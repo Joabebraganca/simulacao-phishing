@@ -9,8 +9,9 @@ import { cookies } from "next/headers";
 // Para escrita de tracking, use o client admin (admin.ts).
 // =============================================================================
 
-export function criarClientServidor() {
-  const cookieStore = cookies();
+export async function criarClientServidor() {
+  // No Next 16, cookies() e assincrono.
+  const cookieStore = await cookies();
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

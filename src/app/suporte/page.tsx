@@ -46,13 +46,15 @@ const campo: CSSProperties = {
   fontFamily: "inherit",
 };
 
-export default function SuportePage({
+export default async function SuportePage({
   searchParams,
 }: {
-  searchParams: { t?: string };
+  searchParams: Promise<{ t?: string }>;
 }) {
+  // No Next 16, searchParams e assincrono.
   // O token vem do link /c/[token] -> /suporte?t=TOKEN. So ele viaja no POST.
-  const token = searchParams?.t ?? "";
+  const { t } = await searchParams;
+  const token = t ?? "";
 
   return (
     <main

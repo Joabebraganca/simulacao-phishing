@@ -8,9 +8,10 @@ export const runtime = "nodejs";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { token: string } },
+  { params }: { params: Promise<{ token: string }> },
 ): Promise<Response> {
-  const token = params.token;
+  // No Next 16, params e assincrono.
+  const { token } = await params;
 
   // Registra o "clicou" (silencioso — nunca bloqueia o redirect).
   await registrarEvento(token, "clicou", req.headers.get("user-agent"));
