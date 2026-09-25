@@ -33,20 +33,36 @@ export default async function PainelLayout({
             gap: 16,
           }}
         >
-          <Link
-            href="/painel"
-            style={{
-              display: "flex",
-              alignItems: "baseline",
-              gap: 10,
-              textDecoration: "none",
-            }}
-          >
-            <span style={{ ...marca, fontSize: 24 }}>EON</span>
-            <span style={{ fontSize: 14, color: cores.suave }}>
-              Conscientização
-            </span>
-          </Link>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 24 }}>
+            <Link
+              href="/painel"
+              style={{
+                display: "flex",
+                alignItems: "baseline",
+                gap: 10,
+                textDecoration: "none",
+              }}
+            >
+              <span style={{ ...marca, fontSize: 24 }}>EON</span>
+              <span style={{ fontSize: 14, color: cores.suave }}>
+                Conscientização
+              </span>
+            </Link>
+            <nav style={{ display: "flex", gap: 16 }}>
+              <Link
+                href="/painel"
+                style={{ fontSize: 14, color: cores.texto, textDecoration: "none" }}
+              >
+                Campanhas
+              </Link>
+              <Link
+                href="/painel/dashboard"
+                style={{ fontSize: 14, color: cores.texto, textDecoration: "none" }}
+              >
+                Dashboard
+              </Link>
+            </nav>
+          </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <span style={{ fontSize: 13, color: cores.suave }}>

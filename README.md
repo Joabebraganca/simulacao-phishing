@@ -147,6 +147,20 @@ Defina `EMAIL_TRANSPORTE` (ver `.env.example`):
 > domínio completo. As credenciais aqui são de **infraestrutura de envio**
 > (SMTP/n8n) — nunca de colaboradores.
 
+## Fase 5 — Dashboard
+
+Em `/painel/dashboard` (link no topo do painel):
+
+- **Funil geral**: destinatários → enviados → abriram → clicaram → submeteram →
+  treinaram, com contagem e taxa em cada etapa.
+- **Por setor**: tabela com as mesmas etapas por setor; “submeteram” é destacada
+  como a métrica de risco.
+- **Filtro por campanha** (`?campanha=<id>`) para isolar um piloto.
+
+As contagens são de **pessoas distintas** por etapa (quem abriu 3× conta 1),
+espelhando a view `metricas_por_setor`. A leitura usa o papel `authenticated`
+(RLS) e a agregação roda no servidor — por comportamento, nunca por credencial.
+
 ## Roadmap
 
 - [x] **Fase 0 — Fundação**: repo, migração, variáveis de ambiente, clients Supabase.
@@ -154,7 +168,7 @@ Defina `EMAIL_TRANSPORTE` (ver `.env.example`):
 - [x] **Fase 2 — Tracking**: rotas de pixel, clique e submissão + a landing.
 - [x] **Fase 3 — Treinamento**: página de conscientização pós-clique.
 - [x] **Fase 4 — Envio**: disparo com token por destinatário (SMTP/n8n).
-- [ ] **Fase 5 — Dashboard**: taxas por setor e por pessoa.
+- [x] **Fase 5 — Dashboard**: taxas por setor e por pessoa.
 - [ ] **Fase 6 — Piloto**: rodar num setor, medir, ajustar, treinar.
 
 ## Convenções
