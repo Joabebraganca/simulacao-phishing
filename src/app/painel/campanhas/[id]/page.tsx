@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { cores, rotulo, campo, botao, cartao } from "@/lib/ui";
+import { cores, rotulo, campo, botao, botaoSecundario, cartao } from "@/lib/ui";
 import { criarClientServidor } from "@/lib/supabase/server";
 import type { Campanha, Destinatario, TipoEvento } from "@/lib/tipos";
 import { importarDestinatarios } from "@/app/painel/actions";
+import { enviarTeste } from "@/app/painel/envio";
+import { nomeTransporte } from "@/lib/email/transporte";
 import { BadgeStatus, Etapa } from "@/app/painel/_componentes";
-import { BotaoExcluir, BotaoCopiar } from "@/app/painel/_acoes-cliente";
+import { BotaoExcluir, BotaoCopiar, BotaoDisparar } from "@/app/painel/_acoes-cliente";
 
 export const metadata = { title: "Campanha — Painel" };
 
@@ -18,10 +20,17 @@ export default async function CampanhaDetalhePage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ ok?: string; dup?: string; erro?: string }>;
+  searchParams: Promise<{
+    ok?: string;
+    dup?: string;
+    erro?: string;
+    enviados?: string;
+    falhas?: string;
+    teste?: string;
+  }>;
 }) {
   const { id } = await params;
-  const { ok, dup, erro } = await searchParams;
+  const { ok, dup, erro, enviados, falhas, teste } = await searchParams;
 
   const supabase = await criarClientServidor();
 
@@ -61,6 +70,11 @@ export default async function CampanhaDetalhePage({
   }
 
   const base = baseUrl();
+
+  const enviadosCount = destinatarios.filter((d) =>
+    etapasPorDest.get(d.id)?.has("enviado"),
+  ).length;
+  const pendentesCount = destinatarios.length - enviadosCount;
 
   return (
     <div>
@@ -106,6 +120,15 @@ export default async function CampanhaDetalhePage({
           }`}
         />
       ) : null}
+      {enviados !== undefined ? (
+        <Aviso
+          tom={Number(falhas) > 0 ? "erro" : "ok"}
+          texto={`${enviados} e-mail(s) enviado(s).${
+            falhas && Number(falhas) > 0 ? ` ${falhas} falharam.` : ""
+          }`}
+        />
+      ) : null}
+      {teste ? <Aviso tom="ok" texto={`E-mail de teste enviado para ${teste}.`} /> : null}
       {erro ? <Aviso tom="erro" texto={erro} /> : null}
 
       {/* Importar destinatarios ---------------------------------------------- */}
@@ -155,6 +178,52 @@ export default async function CampanhaDetalhePage({
             </button>
           </div>
         </form>
+      </section>
+
+      {/* Envio --------------------------------------------------------------- */}
+      <section style={{ ...cartao, marginBottom: 24 }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "baseline",
+            justifyContent: "space-between",
+            gap: 12,
+            flexWrap: "wrap",
+          }}
+        >
+          <h2 style={{ fontSize: 16, fontWeight: 700, color: cores.texto, margin: 0 }}>
+            Envio
+          </h2>
+          <span style={{ fontSize: 13, color: cores.suave }}>
+            {enviadosCount} enviado(s) · {pendentesCount} pendente(s) · transporte:{" "}
+            {nomeTransporte()}
+          </span>
+        </div>
+        <p style={{ fontSize: 13, color: cores.suave, margin: "6px 0 16px", lineHeight: 1.5 }}>
+          Cada e-mail carrega o pixel de abertura e o link de clique com o token do
+          destinatário. Quem já recebeu não é reenviado. Nada de credenciais.
+        </p>
+
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+          <BotaoDisparar campanhaId={campanha.id} pendentes={pendentesCount} />
+
+          <form
+            action={enviarTeste}
+            style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}
+          >
+            <input type="hidden" name="campanha_id" value={campanha.id} />
+            <input
+              name="email_teste"
+              type="email"
+              required
+              placeholder="e-mail para teste"
+              style={{ ...campo, width: 220 }}
+            />
+            <button type="submit" style={botaoSecundario}>
+              Enviar teste
+            </button>
+          </form>
+        </div>
       </section>
 
       {/* Lista de destinatarios ---------------------------------------------- */}

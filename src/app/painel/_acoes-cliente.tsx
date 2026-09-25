@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { cores, botaoSecundario } from "@/lib/ui";
+import { cores, botao, botaoSecundario } from "@/lib/ui";
 import { excluirCampanha } from "@/app/painel/actions";
+import { dispararCampanha } from "@/app/painel/envio";
 
 // Botao de exclusao com confirmacao no navegador. Usa a server action
 // `excluirCampanha`; o confirm() apenas evita o clique acidental.
@@ -32,6 +33,47 @@ export function BotaoExcluir({ id }: { id: string }) {
         }}
       >
         Excluir campanha
+      </button>
+    </form>
+  );
+}
+
+// Dispara a campanha para os destinatarios pendentes, com confirmacao — envia
+// e-mails de verdade, entao pede uma confirmacao explicita antes.
+export function BotaoDisparar({
+  campanhaId,
+  pendentes,
+}: {
+  campanhaId: string;
+  pendentes: number;
+}) {
+  const semPendentes = pendentes === 0;
+  return (
+    <form
+      action={dispararCampanha}
+      onSubmit={(e) => {
+        if (
+          !confirm(
+            `Enviar o e-mail da simulação para ${pendentes} destinatário(s) pendente(s)? Esta ação dispara e-mails reais.`,
+          )
+        ) {
+          e.preventDefault();
+        }
+      }}
+    >
+      <input type="hidden" name="campanha_id" value={campanhaId} />
+      <button
+        type="submit"
+        disabled={semPendentes}
+        style={{
+          ...botao,
+          opacity: semPendentes ? 0.5 : 1,
+          cursor: semPendentes ? "not-allowed" : "pointer",
+        }}
+      >
+        {semPendentes
+          ? "Nada pendente para enviar"
+          : `Disparar para ${pendentes} pendente(s)`}
       </button>
     </form>
   );

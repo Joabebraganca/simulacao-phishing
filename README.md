@@ -120,13 +120,40 @@ tracking (pixel/clique/submit/landing/treinamento) ficam fora do gate.
 > sessão no servidor é o que impede escrita anônima. Nenhuma dessas operações
 > toca senha ou credencial.
 
+## Fase 4 — Envio
+
+Na tela da campanha, a seção **Envio** dispara o e-mail da simulação. Cada
+mensagem carrega, por destinatário, o **pixel de abertura** (`/api/abrir?t=token`)
+e o **link de clique** (`/c/token`). Ao disparar:
+
+- só vão os destinatários **ainda sem** evento `enviado` (não duplica reenvios);
+- cada envio bem-sucedido registra o evento `enviado`;
+- a campanha passa para `em_andamento`.
+
+Há também **Enviar teste**, que manda uma cópia para um e-mail à sua escolha
+usando um token inexistente — o preview não contamina as métricas.
+
+### Transporte (escolha por variável de ambiente)
+
+Defina `EMAIL_TRANSPORTE` (ver `.env.example`):
+
+- **`smtp`** (padrão): SMTP próprio via `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`,
+  `SMTP_USER`, `SMTP_PASS`.
+- **`n8n`**: o painel faz `POST` em `N8N_WEBHOOK_URL` com
+  `{ de, para, assunto, html, texto }` (e o header opcional `x-webhook-secret`);
+  o fluxo do n8n cuida do disparo.
+
+> Requer `NEXT_PUBLIC_APP_URL` configurada, para os links/pixel saírem com o
+> domínio completo. As credenciais aqui são de **infraestrutura de envio**
+> (SMTP/n8n) — nunca de colaboradores.
+
 ## Roadmap
 
 - [x] **Fase 0 — Fundação**: repo, migração, variáveis de ambiente, clients Supabase.
 - [x] **Fase 1 — Campanha**: login do painel, CRUD de campanha, importar destinatários (CSV), gerar tokens.
 - [x] **Fase 2 — Tracking**: rotas de pixel, clique e submissão + a landing.
 - [x] **Fase 3 — Treinamento**: página de conscientização pós-clique.
-- [ ] **Fase 4 — Envio**: disparo com token por destinatário (SMTP/n8n).
+- [x] **Fase 4 — Envio**: disparo com token por destinatário (SMTP/n8n).
 - [ ] **Fase 5 — Dashboard**: taxas por setor e por pessoa.
 - [ ] **Fase 6 — Piloto**: rodar num setor, medir, ajustar, treinar.
 
