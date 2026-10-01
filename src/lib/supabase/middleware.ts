@@ -52,7 +52,8 @@ export async function atualizarSessao(request: NextRequest): Promise<NextRespons
     return NextResponse.redirect(url);
   }
 
-  if (user && caminho === "/login") {
+  const paginasAuth = ["/login", "/cadastro", "/recuperar"];
+  if (user && paginasAuth.includes(caminho)) {
     const url = request.nextUrl.clone();
     url.pathname = "/painel";
     return NextResponse.redirect(url);

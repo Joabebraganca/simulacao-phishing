@@ -9,5 +9,5 @@ export default async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/painel/:path*", "/login"],
+  matcher: ["/painel/:path*", "/login", "/cadastro", "/recuperar"],
 };

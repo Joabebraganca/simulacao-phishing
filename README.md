@@ -89,21 +89,36 @@ Ver [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql).
 
 ## Fase 1 — Painel de campanhas
 
-O painel interno vive em `/painel` e exige login (Supabase Auth). Não há
-auto-cadastro: os usuários da equipe de TI são provisionados manualmente.
+O painel interno vive em `/painel` e exige login (Supabase Auth). As telas de
+autenticação são `/login`, `/cadastro` e `/recuperar`.
 
-### 1. Criar o usuário de TI no Supabase
+### Auto-cadastro com confirmação por código
 
-No painel do Supabase: **Authentication > Users > Add user** → informe e-mail e
-senha (marque "Auto Confirm User"). Repita para cada pessoa do time. Opcional:
-em **Authentication > Providers > Email**, desligue "Enable sign-ups" para
-impedir cadastros externos.
+A equipe de TI se cadastra sozinha, com uma trava: só e-mails do domínio
+corporativo (`DOMINIO_PERMITIDO`, ex.: `eonbr.com`) podem criar conta — este é
+um sistema interno. Fluxos:
 
-### 2. Entrar
+- **Cadastro** (`/cadastro`): nome, e-mail corporativo e senha → recebe um
+  **código de 6 dígitos** por e-mail → confirma → entra.
+- **Esqueci a senha** (`/recuperar`): informa o e-mail → recebe um **código** →
+  define a nova senha → entra.
 
-Rode `npm run dev`, acesse `http://localhost:3000/painel` e faça login. O
-middleware (`src/proxy.ts`) protege tudo sob `/painel`; as rotas públicas de
-tracking (pixel/clique/submit/landing/treinamento) ficam fora do gate.
+### Config necessária no Supabase
+
+Em **Authentication**:
+
+1. **Providers > Email**: mantenha **Enable sign-ups** e **Confirm email** ligados.
+2. **Email Templates**: para o código chegar como **número** (e não link), edite
+   os templates **Confirm signup** e **Reset password** para usar `{{ .Token }}`
+   no corpo (em vez de `{{ .ConfirmationURL }}`). Ex.:
+   `Seu código é: {{ .Token }}`.
+3. Em produção, configure um **SMTP próprio** em Authentication > SMTP (o SMTP de
+   teste do Supabase tem limite baixo de envios).
+
+> A trava de domínio é feita no app (server action `cadastrar`). O
+> `middleware`/proxy (`src/proxy.ts`) protege tudo sob `/painel` e manda quem já
+> está logado de volta ao painel se tentar abrir as telas de auth. As rotas
+> públicas de tracking ficam fora do gate.
 
 ### 3. Criar campanha e importar destinatários
 
