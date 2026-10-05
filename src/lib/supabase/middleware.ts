@@ -52,7 +52,7 @@ export async function atualizarSessao(request: NextRequest): Promise<NextRespons
     return NextResponse.redirect(url);
   }
 
-  const paginasAuth = ["/login", "/cadastro", "/recuperar"];
+  const paginasAuth = ["/login", "/recuperar"];
   if (user && paginasAuth.includes(caminho)) {
     const url = request.nextUrl.clone();
     url.pathname = "/painel";

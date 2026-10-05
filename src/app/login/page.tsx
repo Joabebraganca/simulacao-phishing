@@ -16,13 +16,7 @@ export default async function LoginPage({
       subtitulo="Painel de Conscientização"
       erro={erro}
       sucesso={sucesso}
-      rodape={
-        <>
-          <LinkAuth href="/recuperar">Esqueci minha senha</LinkAuth>
-          <span style={{ margin: "0 8px" }}>·</span>
-          <LinkAuth href="/cadastro">Criar conta</LinkAuth>
-        </>
-      }
+      rodape={<LinkAuth href="/recuperar">Esqueci minha senha</LinkAuth>}
     >
       <form action={entrar} style={{ display: "grid", gap: 16 }}>
         <div>

@@ -90,33 +90,27 @@ Ver [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql).
 ## Fase 1 — Painel de campanhas
 
 O painel interno vive em `/painel` e exige login (Supabase Auth). As telas de
-autenticação são `/login`, `/cadastro` e `/recuperar`.
+autenticação são `/login` e `/recuperar`. **Não há auto-cadastro**: as contas da
+equipe de TI são provisionadas.
 
-### Auto-cadastro com confirmação por código
+### Provisionar uma conta
 
-A equipe de TI se cadastra sozinha, com uma trava: só e-mails do domínio
-corporativo (`DOMINIO_PERMITIDO`, ex.: `eonbr.com`) podem criar conta — este é
-um sistema interno. Fluxos:
+No **dashboard do Supabase > Authentication > Users > Add user** (marque *Auto
+Confirm User*), ou via service role. Depois é só entrar em `/login`.
 
-- **Cadastro** (`/cadastro`): nome, e-mail corporativo e senha → recebe um
-  **código de 6 dígitos** por e-mail → confirma → entra.
-- **Esqueci a senha** (`/recuperar`): informa o e-mail → recebe um **código** →
-  define a nova senha → entra.
+- **Esqueci a senha** (`/recuperar`): informa o e-mail → recebe um **código de 6
+  dígitos** → define a nova senha → entra.
 
-### Config necessária no Supabase
+### Config necessária no Supabase (para o código de recuperação)
 
 Em **Authentication**:
 
-1. **Providers > Email**: mantenha **Enable sign-ups** e **Confirm email** ligados.
-2. **Email Templates**: para o código chegar como **número** (e não link), edite
-   os templates **Confirm signup** e **Reset password** para usar `{{ .Token }}`
-   no corpo (em vez de `{{ .ConfirmationURL }}`). Ex.:
-   `Seu código é: {{ .Token }}`.
-3. Em produção, configure um **SMTP próprio** em Authentication > SMTP (o SMTP de
+1. **Email Templates > Reset password**: para o código chegar como **número** (e
+   não link), use `{{ .Token }}` no corpo (ex.: `Seu código é: {{ .Token }}`).
+2. Em produção, configure um **SMTP próprio** em Authentication > SMTP (o SMTP de
    teste do Supabase tem limite baixo de envios).
 
-> A trava de domínio é feita no app (server action `cadastrar`). O
-> `middleware`/proxy (`src/proxy.ts`) protege tudo sob `/painel` e manda quem já
+> O `middleware`/proxy (`src/proxy.ts`) protege tudo sob `/painel` e manda quem já
 > está logado de volta ao painel se tentar abrir as telas de auth. As rotas
 > públicas de tracking ficam fora do gate.
 
