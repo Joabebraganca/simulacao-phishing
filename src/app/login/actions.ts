@@ -32,6 +32,23 @@ export async function entrar(formData: FormData): Promise<void> {
   const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
 
   if (error) {
+    // Credencial errada => status 400 / code invalid_credentials. Qualquer outra
+    // coisa (rede, env ausente, projeto errado) e problema de CONFIGURACAO —
+    // nao adianta o usuario reconferir a senha. Separamos as mensagens e logamos
+    // o erro real no servidor para facilitar o diagnostico.
+    const credInvalida =
+      error.status === 400 || error.code === "invalid_credentials";
+
+    if (!credInvalida) {
+      console.error("[login] erro inesperado:", error.status, error.code, error.message);
+      redirect(
+        "/login?erro=" +
+          encodeURIComponent(
+            "Não foi possível conectar à autenticação. Verifique a configuração do Supabase.",
+          ),
+      );
+    }
+
     // Mensagem generica de proposito: nao revela se o e-mail existe.
     redirect("/login?erro=" + encodeURIComponent("E-mail ou senha inválidos."));
   }
