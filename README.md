@@ -170,6 +170,35 @@ As contagens são de **pessoas distintas** por etapa (quem abriu 3× conta 1),
 espelhando a view `metricas_por_setor`. A leitura usa o papel `authenticated`
 (RLS) e a agregação roda no servidor — por comportamento, nunca por credencial.
 
+## Deploy (Vercel)
+
+O app é feito para a Vercel (deploy automático a cada push no GitHub). **O build
+passa mesmo sem as variáveis**, mas o login/tracking só funcionam com elas —
+sem o Supabase configurado, o login mostra *"Não foi possível conectar à
+autenticação"*.
+
+### Variáveis de ambiente (Settings → Environment Variables, escopo Production)
+
+| Variável | Valor |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | copie do `.env.local` |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | copie do `.env.local` |
+| `SUPABASE_SERVICE_ROLE_KEY` | copie do `.env.local` (secreta; **sem** `NEXT_PUBLIC_`) |
+| `NEXT_PUBLIC_APP_URL` | a **URL de produção da Vercel** (não `localhost`) |
+| `EMAIL_TRANSPORTE` + `SMTP_*` **ou** `N8N_WEBHOOK_URL` | só para a Fase 4 (envio) |
+
+Cole os valores **sem aspas** e sem espaço/quebra no final.
+
+### Depois de adicionar/alterar variáveis
+
+Faça **Redeploy** (Deployments → último → ⋯ → Redeploy): variáveis novas **não**
+valem para deploys já existentes.
+
+### Diagnóstico pela mensagem de erro no login
+
+- *"Não foi possível conectar à autenticação…"* → falta/erro em variável do Supabase.
+- *"E-mail ou senha inválidos."* → configuração ok; é a credencial mesmo.
+
 ## Roadmap
 
 - [x] **Fase 0 — Fundação**: repo, migração, variáveis de ambiente, clients Supabase.
